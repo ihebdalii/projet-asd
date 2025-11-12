@@ -13,6 +13,9 @@ void gestEmprunts();
 void stats();
 void afficherLivres(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N);
 void ajouterLivre(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N);
+void supprimerLivre(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N);
+void modifierExp(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N);
+void rechercherLivre(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N);
 
 // Les Livres initiaux
 
@@ -111,6 +114,89 @@ void afficherLivres(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N)
     printf("╚════════════════════════════════════════════════════════╝\n");
 }
 
+void supprimerLivre(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N)
+{
+    int num, found = -1, i;
+    printf("Donnez le numero du livre : ");
+    scanf("%d", &num);
+    for (i = 0; i <= num; i++)
+    {
+        if (T_NLivre[i] == num)
+        {
+            found = i;
+            break;
+        }
+    }
+    if (found == -1)
+    {
+        printf("Livre non trouvé ! ");
+        return;
+    }
+
+    for (i = found; i < *N; i++)
+    {
+        T_NLivre[i] = T_NLivre[i + 1];
+        strcpy(T_Titre[i], T_Titre[i + 1]);
+        T_Nbr_exp[i] = T_Nbr_exp[i + 1];
+    }
+
+    (*N)--;
+    printf("Livre supprimé !");
+}
+
+void modifierExp(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N)
+{
+    int num, found = -1;
+    printf("Donnez le numero du livre a modifier : ");
+    scanf("%d", &num);
+
+    for (int i = 0; i <= num; i++)
+    {
+        if (T_NLivre[i] == num)
+        {
+            found = i;
+        }
+    }
+    if (found == -1)
+    {
+        printf("Livre non trouvé ! ");
+        return;
+    }
+    else
+    {
+        printf("Il y'a %d exemplaire(s) de ce livre actuellement.\n", T_Nbr_exp[found]);
+        printf("Donnez le nouveau nombre : ");
+        scanf("%d", &num);
+        T_Nbr_exp[found] = num;
+        printf("Exemplaire(s) modifié !");
+    }
+}
+
+void rechercherLivre(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[], int *N)
+{
+    int num, found = -1;
+    printf("Donnez le numero du livre que vous voulez trouver : ");
+    scanf("%d", &num);
+    for (int i = 0; i <= num; i++)
+    {
+        if (T_NLivre[i] == num)
+        {
+            found = i;
+        }
+    }
+    if (found == -1)
+    {
+        printf("Livre non trouvé ! ");
+        return;
+    }
+    else
+    {
+        printf("Livre trouvé : \n");
+        printf("%d . %s : %d", T_NLivre[found], T_Titre[found], T_Nbr_exp[found]);
+        return;
+    }
+}
+
 void gestBiblio()
 {
     int choix;
@@ -137,6 +223,18 @@ void gestBiblio()
             break;
         case 2:
             ajouterLivre(T_NLivre, T_Titre, T_Nbr_exp, &N);
+            break;
+
+        case 3:
+            supprimerLivre(T_NLivre, T_Titre, T_Nbr_exp, &N);
+            break;
+
+        case 4:
+            modifierExp(T_NLivre, T_Titre, T_Nbr_exp, &N);
+            break;
+
+        case 5:
+            rechercherLivre(T_NLivre, T_Titre, T_Nbr_exp, &N);
             break;
 
         default:
