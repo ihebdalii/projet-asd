@@ -48,15 +48,56 @@ void afficherEmpruntsEnCours(int emprunts[][8], int *nb_emprunts,
                              char T_Titre[][50]);
 void afficherLivresEnRetard(int emprunts[][8], int *nb_emprunts,
                        char T_Titre[][50]);
-void afficherEmpruntsParDate(int emprunts[][8], int *nb_emprunts, int T_NLivre[],
-                             char T_Titre[][50], int *N);
+void afficherEmpruntsParDate(int emprunts[][8], int *nb_emprunts,
+                             char T_Titre[][50]);
 void supprimerEmpruntsParPeriode(int emprunts[][8], int *nb_emprunts);
 
-// Les Livres initiaux
+// fonction pour la lecture de la date
+int LectureDate(char date[], int *jj, int *mm, int *aaaa);
+
+
+int LectureDate(char date[], int *jj, int *mm, int *aaaa) {
+  scanf("%10s", date);
+  
+  if (date[2] != '/' || date[5] != '/') {
+    printf("Format de date invalide. Utilisez jj/mm/aaaa.\n");
+    return 0;
+  }
+  
+  // Extraire les composants de la date
+  *jj = (date[0] - '0') * 10 + (date[1] - '0');
+  *mm = (date[3] - '0') * 10 + (date[4] - '0');
+  *aaaa = (date[6] - '0') * 1000 + (date[7] - '0') * 100 + 
+          (date[8] - '0') * 10 + (date[9] - '0');
+  
+  // Validation du mois
+  if (*mm < 1 || *mm > 12) {
+      printf("Mois invalide.\n");
+      return 0;
+  }
+
+  // Validation du jour
+  int max_jours = 31;
+  if (*mm == 4 || *mm == 6 || *mm == 9 || *mm == 11) {
+      max_jours = 30;
+  } else if (*mm == 2) {
+      if ((*aaaa % 4 == 0 && *aaaa % 100 != 0) || (*aaaa % 400 == 0)) {
+          max_jours = 29;
+      } else {
+          max_jours = 28;
+      }
+  }
+
+  if (*jj < 1 || *jj > max_jours) {
+      printf("Jour invalide pour ce mois.\n");
+      return 0;
+  }
+  
+  return 1; // Succès
+}
 
 void initialiserLivres(int T_NLivre[], char T_Titre[][50], int T_Nbr_exp[],
                        int *N) {
-
   *N = 5;
   T_NLivre[0] = 101;
   strcpy(T_Titre[0], "Le Petit Prince");
@@ -326,6 +367,9 @@ void gestEmprunts() {
     case 5:
       afficherLivresEnRetard(emprunts, &nb_emprunts, T_Titre);
       break;
+    case 6:
+        afficherEmpruntsParDate(emprunts, &nb_emprunts, T_Titre);
+        break;
 
     default:
       break;
@@ -385,15 +429,9 @@ void ajoutEmprunt(int emprunts[][8], int *nb_emprunts, int T_NLivre[],
       }
     }
     printf("Donnez la date d'emprunt jj/mm/aaaa : ");
-    scanf("%10s", date);
-    if (date[2] != '/' || date[5] != '/') {
-      printf("La date d'emprunt doit etre au format jj/mm/aaaa.\n");
+    if (!LectureDate(date, &jj, &mm, &aaaa)) {
       break;
     }
-    jj = (date[0] - '0') * 10 + (date[1] - '0');
-    mm = (date[3] - '0') * 10 + (date[4] - '0');
-    aaaa = (date[6] - '0') * 1000 + (date[7] - '0') * 100 +
-           (date[8] - '0') * 10 + (date[9] - '0');
     switch (mm) {
     case 1:
     case 3:
@@ -624,12 +662,11 @@ void afficherLivresEnRetard(int emprunts[][8], int *nb_emprunts,
                        char T_Titre[][50]) {
   ClearScreen();
   int jj, mm, aaaa;
-  printf("Donnez la date courante (jj/mm/aaaa) : ");
   char date[11];
-  scanf("%10s", date);
-  jj = (date[0] - '0') * 10 + (date[1] - '0');
-  mm = (date[3] - '0') * 10 + (date[4] - '0');
-  aaaa = (date[6] - '0') * 1000 + (date[7] - '0') * 100 + (date[8] - '0') * 10 + (date[9] - '0');
+  printf("Donnez la date courante (jj/mm/aaaa) : ");
+  if (!LectureDate(date, &jj, &mm, &aaaa)) {
+    return;
+  }
 
   printf("----------------------------------------------------------------\n");
   printf("||            EMPRUNTS EN RETARD                             ||\n");
@@ -646,7 +683,40 @@ void afficherLivresEnRetard(int emprunts[][8], int *nb_emprunts,
     printf("----------------------------------------------------------------\n");
       }
     }
+    else {
+      printf("||           Aucun emprunt en retard.                          ||\n");
+      printf("----------------------------------------------------------------\n");
+      return;
+    }
   }
+}
+
+}
+
+void afficherEmpruntsParDate(int emprunts[][8], int *nb_emprunts,
+                       char T_Titre[][50]) {
+  ClearScreen();
+  char date[11];
+  int jj, mm, aaaa;
+  printf("Donnez la date (jj/mm/aaaa) : ");
+  if (!LectureDate(date, &jj, &mm, &aaaa)) {
+    return;
+  }
+
+  printf("----------------------------------------------------------------\n");
+  printf("||            EMPRUNTS PAR DATE                             ||\n");
+  printf("----------------------------------------------------------------\n");
+
+  for (int i = 0; i < *nb_emprunts; i++) {
+    for (int j = 0; j < MAX; j++){
+      if (emprunts[i][1] == T_NLivre[j] && emprunts[i][5] == jj && emprunts[i][6] == mm && emprunts[i][7] == aaaa) {
+        printf("||           CIN : %d                                           \n", emprunts[i][0]);
+        printf("||           Livre ID %d : %10s                                \n", emprunts[i][1], T_Titre[j]);
+        printf("||           Date d'emprunt : %02d/%02d/%d                    \n", emprunts[i][2], emprunts[i][3], emprunts[i][4]);
+        printf("||           Date de retour prévue : %02d/%02d/%d              \n", emprunts[i][5], emprunts[i][6], emprunts[i][7]);
+        printf("----------------------------------------------------------------\n");
+      }
+    }
 }
 }
 
