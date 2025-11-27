@@ -46,8 +46,8 @@ void EnregistrerRetour(int emprunts[][8], int *nb_emprunts, int T_NLivre[],
                        char T_Titre[][50], int T_Nbr_exp[], int *N);
 void afficherEmpruntsEnCours(int emprunts[][8], int *nb_emprunts,
                              char T_Titre[][50]);
-void afficherLivresEnRetard(int emprunts[][8], int *nb_emprunts, int T_NLivre[],
-                            char T_Titre[][50], int *N);
+void afficherLivresEnRetard(int emprunts[][8], int *nb_emprunts,
+                       char T_Titre[][50]);
 void afficherEmpruntsParDate(int emprunts[][8], int *nb_emprunts, int T_NLivre[],
                              char T_Titre[][50], int *N);
 void supprimerEmpruntsParPeriode(int emprunts[][8], int *nb_emprunts);
@@ -322,6 +322,9 @@ void gestEmprunts() {
       break;
     case 4:
       afficherEmpruntsEnCours(emprunts, &nb_emprunts, T_Titre);
+      break;
+    case 5:
+      afficherLivresEnRetard(emprunts, &nb_emprunts, T_Titre);
       break;
 
     default:
@@ -615,6 +618,36 @@ void afficherEmpruntsEnCours(int emprunts[][8], int *nb_emprunts,
       }
     }
   }
+}
+
+void afficherLivresEnRetard(int emprunts[][8], int *nb_emprunts,
+                       char T_Titre[][50]) {
+  ClearScreen();
+  int jj, mm, aaaa;
+  printf("Donnez la date courante (jj/mm/aaaa) : ");
+  char date[11];
+  scanf("%10s", date);
+  jj = (date[0] - '0') * 10 + (date[1] - '0');
+  mm = (date[3] - '0') * 10 + (date[4] - '0');
+  aaaa = (date[6] - '0') * 1000 + (date[7] - '0') * 100 + (date[8] - '0') * 10 + (date[9] - '0');
+
+  printf("----------------------------------------------------------------\n");
+  printf("||            EMPRUNTS EN RETARD                             ||\n");
+  printf("----------------------------------------------------------------\n");
+
+  for (int i = 0; i < *nb_emprunts; i++) {
+    for (int j = 0; j < MAX; j++){
+      if (emprunts[i][1] == T_NLivre[j]) {
+        if (emprunts[i][7] < aaaa || (emprunts[i][7] == aaaa && emprunts[i][6] < mm) || (emprunts[i][7] == aaaa && emprunts[i][6] == mm && emprunts[i][5] < jj)) {
+    printf("||           CIN : %d                                           \n", emprunts[i][0]);
+    printf("||           Livre ID %d : %10s                                \n", emprunts[i][1], T_Titre[j]);
+    printf("||           Date d'emprunt : %02d/%02d/%d                    \n", emprunts[i][2], emprunts[i][3], emprunts[i][4]);
+    printf("||           Date de retour prévue : %02d/%02d/%d              \n", emprunts[i][5], emprunts[i][6], emprunts[i][7]);
+    printf("----------------------------------------------------------------\n");
+      }
+    }
+  }
+}
 }
 
 
