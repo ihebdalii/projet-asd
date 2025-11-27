@@ -320,18 +320,6 @@ void gestEmprunts() {
       EnregistrerRetour(emprunts, &nb_emprunts, T_NLivre, T_Titre, T_Nbr_exp,
                         &N);
       break;
-    case 4:
-      afficherEmpruntsEnCours(emprunts, &nb_emprunts, T_NLivre, T_Titre, &N);
-      break;
-    case 5:
-      afficherLivresEnRetard(emprunts, &nb_emprunts, T_NLivre, T_Titre, &N);
-      break;
-    case 6:
-      afficherEmpruntsParDate(emprunts, &nb_emprunts, T_NLivre, T_Titre, &N);
-      break;
-    case 7:
-      supprimerEmpruntsParPeriode(emprunts, &nb_emprunts);
-      break;
 
     default:
       break;
@@ -584,26 +572,29 @@ void EnregistrerRetour(int emprunts[][8], int *nb_emprunts, int T_NLivre[],
       found = i;
       break;
     }
-      else if (emprunts[i][0] != cin) {
-        printf("Aucun emprunt trouvé pour ce CIN.\n");
-    return;
-  }
-      else {
-        printf("CIN non trouvé !\n");
-    return;
-  }
-  }
-  if (found != 0) {
-    printf("Livre trouvé !\n");
-    printf("Donnez la date de retour : \n");
-    scanf("%d/%d/%d",&jj,&mm,&aaaa);
-    if (jj < 0 || mm < 0 || aaaa < 0) {
-      printf("Date invalide !\n");
-    return;
   }
 
+  if (found == -1) {
+    printf("Aucun emprunt trouvé pour ce CIN et ce Livre.\n");
+    return;
   }
+  for (int i = found; i < *nb_emprunts - 1; i++) {
+    for (int k = 0; k < 8; k++) {
+      emprunts[i][k] = emprunts[i + 1][k];
+    }
+  }
+  (*nb_emprunts)--;
+  for (int k = 0; k < *N; k++) {
+    if (T_NLivre[k] == num) {
+      T_Nbr_exp[k]++;
+      break;
+    }
+  }
+  
+  printf("Retour enregistré avec succès !\n");
 }
+
+
 
 void stats() {
   ClearScreen();
